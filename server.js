@@ -8,6 +8,7 @@ const Address = require("./models/addressModel");
 
 app.use(express.json());
 
+// Connection DB
 mongoose
   .connect(
     "mongodb+srv://adrien:supermotdepasse@cluster0.sjoau.mongodb.net/morning-populate?retryWrites=true&w=majority",
@@ -19,7 +20,9 @@ mongoose
     console.log("Connected to Database");
   });
 
+// Post
 app.post("/students", async (req, res) => {
+  // Instance d'Address
   const address1 = new Address({
     streetName: req.body.address.streetName,
     streetNumber: req.body.address.streetNumber,
@@ -27,6 +30,7 @@ app.post("/students", async (req, res) => {
     city: req.body.address.city,
   });
 
+  // Injection de l'adresse dans un nouvel étudiant
   try {
     await address1.save(function (err) {
       const student1 = new Student({
@@ -35,7 +39,10 @@ app.post("/students", async (req, res) => {
         address: address1._id,
       });
 
-      student1.save((err) => {});
+      // Sauvegarde
+      student1.save((err) => {
+        console.log(err);
+      });
 
       res.status(201).json({
         message: "Etudiant ajouté",
@@ -49,13 +56,16 @@ app.post("/students", async (req, res) => {
   }
 });
 
+// GET des étudiants avec populate pour l'adresse
 app.get("/students", async (req, res) => {
-  const student = await Student.find().populate("address");
+  const student = await Student.find().populate("address").select("-__v");
   res.json(student);
 });
 
 app.get("/students/:id", async (req, res) => {
-  const student = await Student.findById(req.params.id).populate("address");
+  const student = await Student.findById(req.params.id)
+    .populate("address")
+    .select("-__v");
   res.json(student);
 });
 
