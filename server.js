@@ -19,10 +19,6 @@ mongoose
     console.log("Connected to Database");
   });
 
-app.get("/", (req, res) => {
-  res.send("Welcome");
-});
-
 app.post("/students", (req, res) => {
   const address1 = new Address({
     streetName: req.body.address.streetName,
@@ -44,6 +40,11 @@ app.post("/students", (req, res) => {
       message: "Etudiant ajouté",
     });
   });
+});
+
+app.get("/students", async (req, res) => {
+  const student = await Student.find().populate("address");
+  res.json(student);
 });
 
 app.get("/students/:id", async (req, res) => {
